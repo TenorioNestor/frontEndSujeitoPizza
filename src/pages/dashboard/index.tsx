@@ -7,6 +7,7 @@ import {FiRefreshCcw} from 'react-icons/fi'
 import {setupAPIClient} from '../../services/api'
 import {useState} from 'react'
 import Modal from 'react-modal'
+import {ModalOrder} from '../../components/ModalOrder/index'
 
 
 export type OrderItensProps = {
@@ -57,6 +58,29 @@ export default function Dashboard({orders}:homeProps){
         setModalVisible(false);
     }
 
+    async function handleFinishItem(id:string){
+        const apiClient = await setupAPIClient();
+
+        apiClient.put('/order/finish',{
+            order_id:id,
+        })
+
+        const response = await apiClient.get('/orders');
+
+        setorderList(response.data)
+
+        setModalVisible(false);
+
+    }
+
+    async function handleRefresh() {
+        const apiClient = setupAPIClient();
+
+        const response = await apiClient.get('/orders');
+
+        setorderList(response.data)
+    }
+
     async function handleOpenModalView(id:string){
         const apiClient = setupAPIClient();
         const response = await apiClient.get('/order/detail',{
@@ -81,11 +105,16 @@ export default function Dashboard({orders}:homeProps){
                 <main className={styles.container}>
                     <div className={styles.containerHeader}>
                         <h1>Últimos pedidos</h1>
-                        <button>
+                        <button onClick={handleRefresh}>
                             <FiRefreshCcw size={25} color="#3fffa3"/>
                         </button>
                     </div>
                     <article className={styles.listOrders}>
+
+                        {orderList.length === 0 && (
+                            <span className={styles.emptyList}>Nenhum pedido esta em aberto...</span>
+                        )}
+
                         {orderList.map(item =>(
                             <section key={item.id} className={styles.orderItem}>
                                 <button onClick={()=> handleOpenModalView(item.id)}>
@@ -98,6 +127,16 @@ export default function Dashboard({orders}:homeProps){
 
                     </article>
                 </main>
+                
+                {modalVisible && (
+                    <ModalOrder
+                    isOpen={modalVisible}
+                    onRequestClose={handleCloseModal}
+                    order={modalItem}
+                    handleFinishOrder={handleFinishItem}
+                    />
+                )}
+
             </div>
         </>
     )

@@ -6,6 +6,12 @@
     display: flex;
     flex-direction: column;
 
+
+    .emptyList{
+        color: var(--gray-100);
+        padding-top: 1.3rem;
+        font-size: 1.3rem;
+    }
 }
 
 .container h1{
